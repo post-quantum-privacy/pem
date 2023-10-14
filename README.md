@@ -16,3 +16,61 @@ the entire file.
 ```
 go get github.com/post-quantum-privacy/pem
 ```
+
+## Example
+
+```go
+package main
+
+import (
+	"bytes"
+    "fmt"
+
+    "github.com/post-quantum-privacy/pem"
+)
+
+func main() {
+    // the data you whish to encode with PEM
+    data := bytes.NewBuffer([]byte("..."))
+    // the output writter. Could be a file, conn or any io.Writer
+    out := bytes.NewBuffer(nil)
+
+    // encode the message
+    n, err := pem.Encode("PGP MESSAGE", data, out, nil)
+	if err != nil {
+		panic(err)
+	}
+
+    fmt.Println(out.String())
+}
+```
+
+```go
+package main
+
+import (
+	"bytes"
+    "fmt"
+
+    "github.com/post-quantum-privacy/pem"
+)
+
+func main() {
+    // the data you whish to encode with PEM
+    data := bytes.NewBuffer([]byte("..."))
+    // the output writter. Could be a file, conn or any io.Writer
+    out := bytes.NewBuffer(nil)
+
+    // define your headers
+    headers := make(map[string]string)
+    headers["hash"] = "SHA256"
+
+    // encode the message
+    n, err := pem.Encode("PGP MESSAGE", data, out, headers)
+	if err != nil {
+		panic(err)
+	}
+
+    fmt.Println(out.String())
+}
+```
