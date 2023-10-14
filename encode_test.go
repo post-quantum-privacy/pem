@@ -11,16 +11,35 @@ import (
 )
 
 func TestEncode(t *testing.T) {
-	data := `MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgGZNv6T7dNmLSyrC6j9C5UMKQ/Sf
+	data := []byte(`MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgGZNv6T7dNmLSyrC6j9C5UMKQ/Sf
 rayfBzM9mhNHzV/tXBqCnTL4lQ2fHarAhVbJ2fP2nXXJWgjP1L5OxHXmcZaUUWU9
 P/0cv6BZAvx4sH/CN0o+gxWgV0PTZ9tMvf94XHNc157qi9grPRkahhsv7ujRAEJ2
-D6CIPBoHkmZKQlxjAgMBAAE=`
+D6CIPBoHkmZKQlxjAgMBAAE=`)
 
-	buf := bytes.NewBufferString(data)
+	validateEncode(t, "RSA PUBLIC KEY", data, nil)
+}
 
+func TestEncodeHeaders(t *testing.T) {
+	data := []byte(`MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgGZNv6T7dNmLSyrC6j9C5UMKQ/Sf
+rayfBzM9mhNHzV/tXBqCnTL4lQ2fHarAhVbJ2fP2nXXJWgjP1L5OxHXmcZaUUWU9
+P/0cv6BZAvx4sH/CN0o+gxWgV0PTZ9tMvf94XHNc157qi9grPRkahhsv7ujRAEJ2
+D6CIPBoHkmZKQlxjAgMBAAE=`)
+
+	headers := make(map[string]string)
+	headers["hash"] = "sha256"
+
+	validateEncode(t, "RSA PUBLIC KEY", data, headers)
+
+	headers["Proc-Type"] = "something"
+	headers["kdf"] = "sha256"
+	headers["cipher_suite"] = "aes-256-gcm"
+	validateEncode(t, "RSA PUBLIC KEY", data, headers)
+}
+
+func validateEncode(t *testing.T, kind string, data []byte, headers map[string]string) {
 	output := bytes.NewBuffer(nil)
-	kind := "RSA PUBLIC KEY"
-	n, err := pem.Encode(kind, buf, output, nil)
+
+	n, err := pem.Encode(kind, bytes.NewBuffer(data), output, headers)
 	if err != nil {
 		t.Error(err)
 	}
@@ -43,5 +62,15 @@ D6CIPBoHkmZKQlxjAgMBAAE=`
 
 	if p.Type != kind {
 		t.Error("kind/type does not match")
+	}
+
+	if len(p.Headers) != len(headers) {
+		t.Error("not all headers have been written")
+	}
+
+	for k, v := range headers {
+		if p.Headers[k] != v {
+			t.Errorf("header %q does not have the correct value", k)
+		}
 	}
 }
