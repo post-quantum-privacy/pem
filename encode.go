@@ -2,6 +2,7 @@ package pem
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/base64"
 	"errors"
 	"io"
@@ -13,6 +14,17 @@ var (
 	ErrHeaderColon = errors.New("pem header key cannot include a colon")
 )
 
+// Marshal will take a kind (e.g. RSA PUBLIC KEY), a reader which contains the body data and map
+// of headers, howerver, the headers can be nil. The resulting PEM encoded data is retuned as
+// a byte array.
+func Marshal(kind string, data io.Reader, headers map[string]string) ([]byte, error) {
+	buf := bytes.NewBuffer(nil)
+	_, err := Encode(kind, data, buf, headers)
+	return buf.Bytes(), err
+}
+
+// Encode will take a kind (e.g. RSA PUBLIC KEY), a reader which contains the body data and map
+// of headers, howerver, the headers can be nil. The resulting PEM encoded data is written to w.
 func Encode(kind string, data io.Reader, w io.Writer, headers map[string]string) (n int, err error) {
 	o := bufio.NewWriter(w)
 
