@@ -97,7 +97,7 @@ func Encode(kind string, data io.Reader, w io.Writer, headers map[string]string)
 		}
 
 		wn, err = b64w.Write(buf[:rn])
-		n += int(float64(wn) * 1.351)
+		n += base64.StdEncoding.EncodedLen(wn)
 		if err != nil {
 			return n, err
 		}
