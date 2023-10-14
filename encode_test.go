@@ -36,6 +36,45 @@ D6CIPBoHkmZKQlxjAgMBAAE=`)
 	validateEncode(t, "RSA PUBLIC KEY", data, headers)
 }
 
+func TestMarshal(t *testing.T) {
+	data := []byte(`MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgGZNv6T7dNmLSyrC6j9C5UMKQ/Sf
+	rayfBzM9mhNHzV/tXBqCnTL4lQ2fHarAhVbJ2fP2nXXJWgjP1L5OxHXmcZaUUWU9
+	P/0cv6BZAvx4sH/CN0o+gxWgV0PTZ9tMvf94XHNc157qi9grPRkahhsv7ujRAEJ2
+	D6CIPBoHkmZKQlxjAgMBAAE=`)
+
+	headers := make(map[string]string)
+	headers["hash"] = "sha256"
+
+	output, err := pem.Marshal("RSA PUBLIC KEY", bytes.NewBuffer(data), headers)
+	if err != nil {
+		t.Error(err)
+	}
+
+	p, rest := stdPem.Decode(output)
+	if len(rest) != 0 {
+		t.Errorf("rest is %d, should be zero", len(rest))
+	}
+
+	// they do equal, likely a issue with carrige returns
+	if !bytes.Equal([]byte(data), p.Bytes) {
+		t.Error("data bytes do not match")
+	}
+
+	if p.Type != "RSA PUBLIC KEY" {
+		t.Error("kind/type does not match")
+	}
+
+	if len(p.Headers) != len(headers) {
+		t.Error("not all headers have been written")
+	}
+
+	for k, v := range headers {
+		if p.Headers[k] != v {
+			t.Errorf("header %q does not have the correct value", k)
+		}
+	}
+}
+
 func validateEncode(t *testing.T, kind string, data []byte, headers map[string]string) {
 	output := bytes.NewBuffer(nil)
 
