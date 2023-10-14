@@ -2,7 +2,7 @@ package pem_test
 
 import (
 	"bytes"
-	"fmt"
+	"crypto/rand"
 	"testing"
 
 	stdPem "encoding/pem"
@@ -17,6 +17,20 @@ P/0cv6BZAvx4sH/CN0o+gxWgV0PTZ9tMvf94XHNc157qi9grPRkahhsv7ujRAEJ2
 D6CIPBoHkmZKQlxjAgMBAAE=`)
 
 	validateEncode(t, "RSA PUBLIC KEY", data, nil)
+}
+
+func FuzzEncode(f *testing.F) {
+	// Fuzz different buffer sizes from 1 to 5,000
+	for i := 0; i < 5000; i++ {
+		buf := make([]byte, 1*i)
+		rand.Read(buf)
+
+		f.Add(buf)
+	}
+
+	f.Fuzz(func(t *testing.T, data []byte) {
+		validateEncode(t, "RSA PUBLIC KEY", data, nil)
+	})
 }
 
 func TestEncodeHeaders(t *testing.T) {
@@ -87,7 +101,7 @@ func validateEncode(t *testing.T, kind string, data []byte, headers map[string]s
 		t.Errorf("n does not equal output len. n = %d, real = %d", n, output.Len())
 	}
 
-	fmt.Println(output.String())
+	// fmt.Println(output.String())
 
 	p, rest := stdPem.Decode(output.Bytes())
 	if len(rest) != 0 {
