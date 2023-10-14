@@ -40,7 +40,7 @@ func Encode(kind string, data io.Reader, w io.Writer, headers map[string]string)
 		for k, v := range headers {
 			// Proc-Type must be written first
 			if k == "Proc-Type" {
-				wn, err := o.WriteString("Proc-Type" + ":" + v)
+				wn, err := o.WriteString("Proc-Type" + ":" + v + "\n")
 				n += wn
 				if err != nil {
 					return n, err
@@ -54,9 +54,9 @@ func Encode(kind string, data io.Reader, w io.Writer, headers map[string]string)
 
 		// headers should be a consistent order
 		sort.Strings(headersList)
-		for i := 0; i <= len(headersList); i++ {
+		for i := 0; i < len(headersList); i++ {
 			// write header
-			wn, err := o.WriteString(headersList[i] + ":" + headers[headersList[i]])
+			wn, err := o.WriteString(headersList[i] + ":" + headers[headersList[i]] + "\n")
 			n += wn
 			if err != nil {
 				return n, err
