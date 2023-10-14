@@ -13,6 +13,8 @@ var (
 	ErrUnexpectedBytes = errors.New("unexpected bytes")
 )
 
+// Decode accepts a reader (which provides the PEM data) and a writer for writing the
+// bytes data.
 func Decode(r io.Reader, w io.Writer) (kind string, headers map[string]string, err error) {
 	br := bufio.NewReader(r)
 
