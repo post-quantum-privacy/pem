@@ -1,5 +1,9 @@
 # PEM
 
+[![Go Report Card](https://goreportcard.com/badge/post-quantum-privacy/pem)](https://goreportcard.com/report/post-quantum-privacy/pem)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/post-quantum-privacy/pem)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/post-quantum-privacy/pem/.github/workflows/go.yml)
+
 PEM is a standards complient encoder for the PEM format. This libary enables the streaming of PEM encodes, something which is not supported within Go's standard libary. This enables the encoding and decoding of large PEM files without exhusting system memory.
 
 ## The Problem This Resolves
