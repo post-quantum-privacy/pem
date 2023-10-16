@@ -17,6 +17,7 @@ var (
 // bytes data.
 func Decode(r io.Reader, w io.Writer) (kind string, headers map[string]string, err error) {
 	br := bufio.NewReader(r)
+	headers = make(map[string]string, 5)
 
 	// check for new line
 	peaked, err := br.Peek(1)
@@ -61,6 +62,37 @@ func Decode(r io.Reader, w io.Writer) (kind string, headers map[string]string, e
 	}
 
 	// TODO: read headers
+
+	// detect headers
+	peaked, err = br.Peek(65)
+	if err != nil {
+		if err != bufio.ErrBufferFull && err != io.EOF {
+			return "", nil, err
+		}
+
+		// peaked isnt 65 chars long
+	}
+
+	// detect long header and short header
+	if !bytes.Contains(peaked, []byte{'\n'}) ||
+		bytes.Contains(peaked, []byte{':'}) {
+
+		for {
+			// read full line
+			headerLine, _, err := br.ReadLine()
+			if err != nil {
+				return "", nil, err
+			}
+
+			// end of headers
+			if len(headerLine) == 0 {
+				break
+			}
+
+			kv := bytes.SplitN(headerLine, []byte{':'}, 2)
+			headers[string(kv[0])] = string(kv[1])
+		}
+	}
 
 	// decode base64 data region and auto detect footer start
 	ff := newFooterFinder(br)
