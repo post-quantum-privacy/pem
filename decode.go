@@ -61,8 +61,6 @@ func Decode(r io.Reader, w io.Writer) (kind string, headers map[string]string, e
 		return "", nil, errors.Join(errors.New("decode end of line"), ErrUnexpectedBytes)
 	}
 
-	// TODO: read headers
-
 	// detect headers
 	peaked, err = br.Peek(65)
 	if err != nil {
@@ -89,8 +87,8 @@ func Decode(r io.Reader, w io.Writer) (kind string, headers map[string]string, e
 				break
 			}
 
-			kv := bytes.SplitN(headerLine, []byte{':'}, 2)
-			headers[string(kv[0])] = string(kv[1])
+			k, v, _ := bytes.Cut(headerLine, []byte{':'})
+			headers[string(k)] = string(v)
 		}
 	}
 
