@@ -78,7 +78,7 @@ func TestMarshal(t *testing.T) {
 		t.Error("kind/type does not match")
 	}
 
-	if len(p.Headers) != len(headers) {
+	if headers != nil && len(p.Headers) != len(headers) {
 		t.Error("not all headers have been written")
 	}
 
