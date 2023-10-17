@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	ErrHeaderColon = errors.New("pem header key cannot include a colon")
-	ErrShortHeader = errors.New("header too short")
+	ErrHeaderInvalidChar = errors.New("pem headers cannot include newlines or colons")
+	ErrShortHeader       = errors.New("header too short")
 )
 
 // Marshal will take a kind (e.g. RSA PUBLIC KEY), a reader which contains the body data and map
@@ -129,9 +129,9 @@ func Encode(kind string, data io.Reader, w io.Writer, headers map[string]string)
 
 // validateHeaders checks if there is a ":" within the keys
 func validateHeaders(headers map[string]string) error {
-	for k := range headers {
-		if strings.Contains(k, ":") {
-			return ErrHeaderColon
+	for v, k := range headers {
+		if strings.ContainsAny(k, ":\n") || strings.ContainsAny(v, ":\n") {
+			return ErrHeaderInvalidChar
 		}
 
 		if len(k) == 0 {
